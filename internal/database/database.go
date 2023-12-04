@@ -3,12 +3,11 @@ package database
 import (
 	"fmt"
 	"log"
+	"mangosteen/internal/database/model"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
-
-var DB *gorm.DB
 
 const (
 	host     = "192.168.1.15"
@@ -17,6 +16,8 @@ const (
 	dbname   = "mangosteen_dev"
 	port     = 8888
 )
+
+var DB *gorm.DB
 
 func Connect() {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable TimeZone=Asia/Shanghai",
@@ -28,8 +29,12 @@ func Connect() {
 	DB = db
 }
 
-func Close(db *gorm.DB) {
-	sqlDB, err := db.DB()
+func Migrate() {
+	DB.AutoMigrate(&model.User{})
+}
+
+func Close() {
+	sqlDB, err := DB.DB()
 	if err != nil {
 		log.Fatalln(err)
 	}
