@@ -30,7 +30,7 @@ func Connect() {
 }
 
 func Migrate() {
-	DB.AutoMigrate(&model.User{})
+	DB.AutoMigrate(&model.User{}, &model.ValidationCode{})
 }
 
 func Close() {
