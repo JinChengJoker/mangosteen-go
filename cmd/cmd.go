@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"mangosteen/internal/database"
-	"mangosteen/internal/email"
 	"mangosteen/internal/router"
 
 	"github.com/gin-gonic/gin"
@@ -31,13 +30,7 @@ func Run() {
 			database.Migrate()
 		},
 	}
-	emailCmd := &cobra.Command{
-		Use: "email",
-		Run: func(cmd *cobra.Command, args []string) {
-			email.Send()
-		},
-	}
-	rootCmd.AddCommand(dbCmd, serverCmd, emailCmd)
+	rootCmd.AddCommand(dbCmd, serverCmd)
 	dbCmd.AddCommand(mgrtCmd)
 
 	// 读取配置文件，包含密钥等内容

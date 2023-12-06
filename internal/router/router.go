@@ -7,5 +7,6 @@ import (
 )
 
 func Setup(r *gin.Engine) {
-	r.GET("/ping", controller.Ping)
+	r.GET("/api/v1/ping", controller.Ping)
+	r.POST("/api/v1/validation_code", controller.CreateValidationCode)
 }

@@ -5,16 +5,21 @@ import (
 	"gopkg.in/gomail.v2"
 )
 
-func Send() {
+var d *gomail.Dialer
+
+func New() {
+	d = gomail.NewDialer("smtp.qq.com", 587, "jinchengjoker@foxmail.com", viper.GetString("email.password"))
+}
+
+func Send(to string) error {
+	if d == nil {
+		New()
+	}
 	m := gomail.NewMessage()
-	m.SetHeader("From", "jinchengjoker@foxmail.com")
-	m.SetHeader("To", "jinchengjoker@gmail.com")
+	m.SetHeader("From", "Mangosteen <jinchengjoker@foxmail.com>")
+	m.SetHeader("To", to)
 	m.SetHeader("Subject", "Hello!")
 	m.SetBody("text/html", "Hello <b>金成</b>!")
 
-	d := gomail.NewDialer("smtp.qq.com", 587, "jinchengjoker@foxmail.com", viper.GetString("email.password"))
-
-	if err := d.DialAndSend(m); err != nil {
-		panic(err)
-	}
+	return d.DialAndSend(m)
 }
