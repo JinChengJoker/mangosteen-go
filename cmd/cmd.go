@@ -12,35 +12,31 @@ import (
 )
 
 func Run() {
+	// 创建相关命令
 	rootCmd := &cobra.Command{
 		Use: "mangosteen",
 	}
-
 	serverCmd := &cobra.Command{
 		Use: "server",
 		Run: func(cmd *cobra.Command, args []string) {
 			RunServer()
 		},
 	}
-
 	dbCmd := &cobra.Command{
 		Use: "db",
 	}
-
 	mgrtCmd := &cobra.Command{
 		Use: "migrate",
 		Run: func(cmd *cobra.Command, args []string) {
 			database.Migrate()
 		},
 	}
-
 	emailCmd := &cobra.Command{
 		Use: "email",
 		Run: func(cmd *cobra.Command, args []string) {
 			email.Send()
 		},
 	}
-
 	rootCmd.AddCommand(dbCmd, serverCmd, emailCmd)
 	dbCmd.AddCommand(mgrtCmd)
 
@@ -53,6 +49,7 @@ func Run() {
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
 
+	// 连接数据库
 	database.Connect()
 	defer database.Close()
 
