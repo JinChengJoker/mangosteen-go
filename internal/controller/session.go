@@ -2,6 +2,7 @@ package controller
 
 import (
 	"errors"
+	"mangosteen/internal/auth"
 	"mangosteen/internal/database"
 	"mangosteen/internal/database/model"
 	"net/http"
@@ -24,7 +25,7 @@ func CreateSession(ctx *gin.Context) {
 		return
 	}
 
-	// 校对邮箱和验证码
+	// 校对邮箱
 	var vCode model.ValidationCode
 	result := database.DB.Where("email = ?", rBody.Email).Last(&vCode)
 	if result.Error != nil {
@@ -39,9 +40,20 @@ func CreateSession(ctx *gin.Context) {
 		})
 		return
 	}
+
+	// 校对验证码
 	if rBody.Code == vCode.Code {
+		// 生成 jwt
+		jwt, err := auth.NewJWT(1)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"message": err.Error(),
+			})
+			return
+		}
 		ctx.JSON(http.StatusOK, gin.H{
 			"message": "login success",
+			"token":   jwt,
 		})
 	} else {
 		ctx.JSON(http.StatusBadRequest, gin.H{
