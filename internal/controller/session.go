@@ -31,7 +31,7 @@ func CreateSession(ctx *gin.Context) {
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": "邮箱未注册",
+				"message": "请先发送邮箱验证码",
 			})
 			return
 		}
@@ -43,8 +43,26 @@ func CreateSession(ctx *gin.Context) {
 
 	// 校对验证码
 	if rBody.Code == vCode.Code {
+		var user model.User
+		// 查找用户
+		result := database.DB.Where("email = ?", rBody.Email).First(&user)
+		if result.Error != nil {
+			// 未找到对应的用户
+			if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+				// 使用 email 创建用户
+				user.Email = rBody.Email
+				result := database.DB.Create(&user)
+				if result.Error != nil {
+					ctx.JSON(500, gin.H{
+						"message": result.Error.Error(),
+					})
+					return
+				}
+			}
+		}
+
 		// 生成 jwt
-		jwt, err := auth.NewJWT(1)
+		jwt, err := auth.NewJWT(user.ID)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
 				"message": err.Error(),
