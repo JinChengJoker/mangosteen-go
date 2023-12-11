@@ -32,7 +32,7 @@ func CreateSession(ctx *gin.Context) {
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": "登录失败，无效的验证码",
+				"message": "登录失败，无效的邮箱或验证码",
 			})
 			return
 		}
