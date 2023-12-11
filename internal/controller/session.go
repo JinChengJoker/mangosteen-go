@@ -32,12 +32,20 @@ func CreateSession(ctx *gin.Context) {
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": "请先发送邮箱验证码",
+				"message": "登录失败，无效的验证码",
 			})
 			return
 		}
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": result.Error.Error(),
+		})
+		return
+	}
+
+	// 检查验证码是否已被使用
+	if vCode.UsedAt != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": "登录失败，验证码已失效",
 		})
 		return
 	}
