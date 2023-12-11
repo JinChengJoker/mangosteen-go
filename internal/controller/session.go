@@ -6,6 +6,7 @@ import (
 	"mangosteen/internal/database"
 	"mangosteen/internal/database/model"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -69,6 +70,19 @@ func CreateSession(ctx *gin.Context) {
 			})
 			return
 		}
+
+		// 标记验证码为已使用
+		currentTime := time.Now()
+		vCode.UsedAt = &currentTime
+		result = database.DB.Save(&vCode)
+		if result.Error != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"message": result.Error.Error(),
+			})
+			return
+		}
+
+		// 接口返回 jwt
 		ctx.JSON(http.StatusOK, gin.H{
 			"message": "login success",
 			"token":   jwt,
