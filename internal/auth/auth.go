@@ -11,7 +11,7 @@ var (
 	s   string
 )
 
-func NewJWT(uid uint) (string, error) {
+func NewJWT(uid int64) (string, error) {
 	key = []byte(viper.GetString("auth.secretKey"))
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		jwt.MapClaims{

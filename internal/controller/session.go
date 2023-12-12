@@ -2,9 +2,9 @@ package controller
 
 import (
 	"errors"
+	"mangosteen/dal/model"
+	"mangosteen/database"
 	"mangosteen/internal/auth"
-	"mangosteen/internal/database"
-	"mangosteen/internal/database/model"
 	"net/http"
 	"time"
 

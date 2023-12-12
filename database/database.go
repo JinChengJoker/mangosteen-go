@@ -3,7 +3,6 @@ package database
 import (
 	"fmt"
 	"log"
-	"mangosteen/internal/database/model"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -27,10 +26,6 @@ func Connect() {
 		log.Fatalln(err)
 	}
 	DB = db
-}
-
-func Migrate() {
-	DB.AutoMigrate(&model.User{}, &model.ValidationCode{})
 }
 
 func Close() {

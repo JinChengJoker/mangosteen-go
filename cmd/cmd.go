@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"mangosteen/internal/database"
+	"mangosteen/database"
 	"mangosteen/internal/router"
 
 	"github.com/gin-gonic/gin"
@@ -24,14 +24,14 @@ func Run() {
 	dbCmd := &cobra.Command{
 		Use: "db",
 	}
-	mgrtCmd := &cobra.Command{
-		Use: "migrate",
+	genCmd := &cobra.Command{
+		Use: "gen",
 		Run: func(cmd *cobra.Command, args []string) {
-			database.Migrate()
+			genDao()
 		},
 	}
 	rootCmd.AddCommand(dbCmd, serverCmd)
-	dbCmd.AddCommand(mgrtCmd)
+	dbCmd.AddCommand(genCmd)
 
 	// 读取配置文件，包含密钥等内容
 	viper.SetConfigName("config") // name of config file (without extension)

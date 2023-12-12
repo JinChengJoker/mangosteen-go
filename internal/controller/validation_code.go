@@ -2,8 +2,8 @@ package controller
 
 import (
 	"fmt"
-	"mangosteen/internal/database"
-	"mangosteen/internal/database/model"
+	"mangosteen/dal/model"
+	"mangosteen/database"
 	"mangosteen/internal/email"
 	"math/rand"
 	"net/http"
