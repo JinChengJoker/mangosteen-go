@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"mangosteen/dal/query"
 	"mangosteen/database"
 	"mangosteen/internal/router"
 
@@ -51,6 +52,7 @@ func Run() {
 
 func RunServer() {
 	r := gin.Default()
+	query.SetDefault(database.DB)
 	router.Setup(r)
 	r.Run()
 }

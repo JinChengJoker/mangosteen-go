@@ -1,9 +1,10 @@
 package controller
 
 import (
+	"context"
 	"fmt"
 	"mangosteen/dal/model"
-	"mangosteen/database"
+	"mangosteen/dal/query"
 	"mangosteen/internal/email"
 	"math/rand"
 	"net/http"
@@ -28,18 +29,17 @@ func CreateValidationCode(ctx *gin.Context) {
 
 	// 创建记录
 	code := genCode()
-	vCode := model.ValidationCode{Email: rBody.Email, Code: code}
-	result := database.DB.Create(&vCode)
-
-	if result.Error != nil {
+	v := model.ValidationCode{Email: rBody.Email, Code: code}
+	err := query.ValidationCode.WithContext(context.Background()).Create(&v)
+	if err != nil {
 		ctx.JSON(500, gin.H{
-			"message": result.Error.Error(),
+			"message": err.Error(),
 		})
 		return
 	}
 
 	// 发送邮件
-	err := email.Send(
+	err = email.Send(
 		rBody.Email,
 		"山竹记账验证码",
 		fmt.Sprintf(`<body><h3>正在登录或注册山竹记账</h3><p>验证码：</p><h3>%s</h3><p>请勿与任何人共享此验证码，谢谢！</p><body>`, code),

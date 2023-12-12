@@ -1,9 +1,9 @@
 package controller
 
 import (
+	"context"
 	"errors"
-	"mangosteen/dal/model"
-	"mangosteen/database"
+	"mangosteen/dal/query"
 	"mangosteen/internal/auth"
 	"net/http"
 	"time"
@@ -27,43 +27,43 @@ func CreateSession(ctx *gin.Context) {
 	}
 
 	// 校对邮箱
-	var vCode model.ValidationCode
-	result := database.DB.Where("email = ?", rBody.Email).Last(&vCode)
-	if result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+	vc := query.ValidationCode
+	vcode, err := vc.WithContext(context.Background()).Where(vc.Email.Eq(rBody.Email)).Last()
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": "登录失败，无效的邮箱或验证码",
 			})
 			return
 		}
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": result.Error.Error(),
-		})
-		return
-	}
-
-	// 检查验证码是否已被使用
-	if vCode.UsedAt != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": "登录失败，验证码已失效",
+			"message": err.Error(),
 		})
 		return
 	}
 
 	// 校对验证码
-	if rBody.Code == vCode.Code {
-		var user model.User
+	if rBody.Code == vcode.Code {
+		// 检查验证码是否已被使用
+		if vcode.UsedAt != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": "登录失败，验证码已失效",
+			})
+			return
+		}
+
+		u := query.User
 		// 查找用户
-		result := database.DB.Where("email = ?", rBody.Email).First(&user)
-		if result.Error != nil {
+		user, err := u.WithContext(context.Background()).Where(u.Email.Eq(rBody.Email)).First()
+		if err != nil {
 			// 未找到对应的用户
-			if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
 				// 使用 email 创建用户
 				user.Email = rBody.Email
-				result := database.DB.Create(&user)
-				if result.Error != nil {
+				err := u.WithContext(context.Background()).Create(user)
+				if err != nil {
 					ctx.JSON(500, gin.H{
-						"message": result.Error.Error(),
+						"message": err.Error(),
 					})
 					return
 				}
@@ -81,11 +81,11 @@ func CreateSession(ctx *gin.Context) {
 
 		// 标记验证码为已使用
 		currentTime := time.Now()
-		vCode.UsedAt = &currentTime
-		result = database.DB.Save(&vCode)
-		if result.Error != nil {
+		vcode.UsedAt = &currentTime
+		err = vc.WithContext(context.Background()).Save(vcode)
+		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
-				"message": result.Error.Error(),
+				"message": err.Error(),
 			})
 			return
 		}
