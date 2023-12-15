@@ -16,8 +16,8 @@ import (
 
 type ValidationCode struct{}
 
-func (vc *ValidationCode) RegisterRoutes(r *gin.Engine) {
-	r.POST("/api/v1/validation_code", vc.Create)
+func (vc *ValidationCode) RegisterRoutes(rg *gin.RouterGroup) {
+	rg.POST("/v1/validation_code", vc.Create)
 }
 
 func (vc *ValidationCode) Create(ctx *gin.Context) {

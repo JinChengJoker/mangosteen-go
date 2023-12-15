@@ -9,12 +9,15 @@ import (
 var controllers = []controller.Controller{
 	&controller.ValidationCode{},
 	&controller.Session{},
+	&controller.Me{},
 }
 
 func Setup(r *gin.Engine) {
-	r.GET("/api/v1/ping", controller.Ping)
+	rg := r.Group("/api")
+
+	rg.GET("/v1/ping", controller.Ping)
 
 	for _, c := range controllers {
-		c.RegisterRoutes(r)
+		c.RegisterRoutes(rg)
 	}
 }

@@ -14,8 +14,8 @@ import (
 
 type Session struct{}
 
-func (s *Session) RegisterRoutes(r *gin.Engine) {
-	r.POST("/api/v1/login", s.Create)
+func (s *Session) RegisterRoutes(rg *gin.RouterGroup) {
+	rg.POST("/v1/login", s.Create)
 }
 
 func (s *Session) Create(ctx *gin.Context) {
