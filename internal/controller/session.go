@@ -12,7 +12,13 @@ import (
 	"gorm.io/gorm"
 )
 
-func CreateSession(ctx *gin.Context) {
+type Session struct{}
+
+func (s *Session) RegisterRoutes(r *gin.Engine) {
+	r.POST("/api/v1/login", s.Create)
+}
+
+func (s *Session) Create(ctx *gin.Context) {
 	var rBody struct {
 		Email string `json:"email" binding:"required"`
 		Code  string `json:"code" binding:"required"`
@@ -101,3 +107,8 @@ func CreateSession(ctx *gin.Context) {
 		})
 	}
 }
+
+func (s *Session) Delete(ctx *gin.Context) {}
+func (s *Session) Update(ctx *gin.Context) {}
+func (s *Session) Get(ctx *gin.Context)    {}
+func (s *Session) List(ctx *gin.Context)   {}

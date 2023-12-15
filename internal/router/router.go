@@ -6,8 +6,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var controllers = []controller.Controller{
+	&controller.ValidationCode{},
+	&controller.Session{},
+}
+
 func Setup(r *gin.Engine) {
 	r.GET("/api/v1/ping", controller.Ping)
-	r.POST("/api/v1/validation_code", controller.CreateValidationCode)
-	r.POST("/api/v1/login", controller.CreateSession)
+
+	for _, c := range controllers {
+		c.RegisterRoutes(r)
+	}
 }

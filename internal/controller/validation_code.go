@@ -14,7 +14,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CreateValidationCode(ctx *gin.Context) {
+type ValidationCode struct{}
+
+func (vc *ValidationCode) RegisterRoutes(r *gin.Engine) {
+	r.POST("/api/v1/validation_code", vc.Create)
+}
+
+func (vc *ValidationCode) Create(ctx *gin.Context) {
 	var rBody struct {
 		Email string `json:"email" binding:"required"`
 	}
@@ -55,6 +61,11 @@ func CreateValidationCode(ctx *gin.Context) {
 		"message": "发送成功",
 	})
 }
+
+func (vc *ValidationCode) Delete(ctx *gin.Context) {}
+func (vc *ValidationCode) Update(ctx *gin.Context) {}
+func (vc *ValidationCode) Get(ctx *gin.Context)    {}
+func (vc *ValidationCode) List(ctx *gin.Context)   {}
 
 func genCode() string {
 	// 设置随机数种子，以确保每次运行生成不同的随机数
