@@ -2,22 +2,29 @@ package router
 
 import (
 	"mangosteen/internal/controller"
+	"mangosteen/internal/middleware"
 
 	"github.com/gin-gonic/gin"
 )
 
-var controllers = []controller.Controller{
+var noAuthControllers = []controller.Controller{
 	&controller.ValidationCode{},
 	&controller.Session{},
+}
+var needAuthControllers = []controller.Controller{
 	&controller.Me{},
 }
 
 func Setup(r *gin.Engine) {
-	rg := r.Group("/api")
+	r.GET("/ping", controller.Ping)
 
-	rg.GET("/v1/ping", controller.Ping)
+	rg := r.Group("/auth")
+	for _, c := range noAuthControllers {
+		c.RegisterRoutes(rg)
+	}
 
-	for _, c := range controllers {
+	rg = r.Group("/api", middleware.Auth())
+	for _, c := range needAuthControllers {
 		c.RegisterRoutes(rg)
 	}
 }
