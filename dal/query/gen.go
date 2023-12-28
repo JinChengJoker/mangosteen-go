@@ -17,12 +17,14 @@ import (
 
 var (
 	Q              = new(Query)
+	Item           *item
 	User           *user
 	ValidationCode *validationCode
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	*Q = *Use(db, opts...)
+	Item = &Q.Item
 	User = &Q.User
 	ValidationCode = &Q.ValidationCode
 }
@@ -30,6 +32,7 @@ func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
 		db:             db,
+		Item:           newItem(db, opts...),
 		User:           newUser(db, opts...),
 		ValidationCode: newValidationCode(db, opts...),
 	}
@@ -38,6 +41,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 type Query struct {
 	db *gorm.DB
 
+	Item           item
 	User           user
 	ValidationCode validationCode
 }
@@ -47,6 +51,7 @@ func (q *Query) Available() bool { return q.db != nil }
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
 		db:             db,
+		Item:           q.Item.clone(db),
 		User:           q.User.clone(db),
 		ValidationCode: q.ValidationCode.clone(db),
 	}
@@ -63,18 +68,21 @@ func (q *Query) WriteDB() *Query {
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
 		db:             db,
+		Item:           q.Item.replaceDB(db),
 		User:           q.User.replaceDB(db),
 		ValidationCode: q.ValidationCode.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
+	Item           IItemDo
 	User           IUserDo
 	ValidationCode IValidationCodeDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
+		Item:           q.Item.WithContext(ctx),
 		User:           q.User.WithContext(ctx),
 		ValidationCode: q.ValidationCode.WithContext(ctx),
 	}

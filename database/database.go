@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"log"
+	"mangosteen/database/model"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -34,4 +35,8 @@ func Close() {
 		log.Fatalln(err)
 	}
 	sqlDB.Close()
+}
+
+func Migrate() {
+	DB.AutoMigrate(&model.Item{})
 }

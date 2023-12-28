@@ -25,14 +25,24 @@ func Run() {
 	dbCmd := &cobra.Command{
 		Use: "db",
 	}
+	migrateCmd := &cobra.Command{
+		Use: "migrate",
+		Run: func(cmd *cobra.Command, args []string) {
+			database.Migrate()
+		},
+	}
+	gormCmd := &cobra.Command{
+		Use: "gorm",
+	}
 	genCmd := &cobra.Command{
 		Use: "gen",
 		Run: func(cmd *cobra.Command, args []string) {
 			genDao()
 		},
 	}
-	rootCmd.AddCommand(dbCmd, serverCmd)
-	dbCmd.AddCommand(genCmd)
+	rootCmd.AddCommand(dbCmd, serverCmd, gormCmd)
+	dbCmd.AddCommand(migrateCmd)
+	gormCmd.AddCommand(genCmd)
 
 	// 读取配置文件，包含密钥等内容
 	viper.SetConfigName("config") // name of config file (without extension)
